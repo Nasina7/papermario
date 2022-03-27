@@ -25,9 +25,112 @@ s32 WalkPeachAnims[] = {
 };
 
 void action_run_update_peach(void);
+void func_802B65E8_E23CC8(void);
 
 // walk
-INCLUDE_ASM(void, "world/action/walk", func_802B6000_E236E0, void);
+void func_802B6000_E236E0(void) {
+    f32 playerMagnitude;
+    f32 playerAngle;
+    s32 temp_f8;
+    s32 temp_v1;
+    s32 playerClearFlagArg;
+    s32 phi_s3;
+    s32 phi_v0;
+    u32 phi_v0_2;
+    PlayerStatus* playerStatus = &gPlayerStatus;
+    PlayerData* playerData = &gPlayerData;
+
+    phi_s3 = 0;
+    if ((playerStatus->animFlags & PLAYER_STATUS_ANIM_FLAGS_USING_PEACH_PHYSICS)) {
+        func_802B65E8_E23CC8();
+        return;
+    }
+
+    temp_v1 = playerStatus->flags;
+
+    if (playerStatus->flags & PLAYER_STATUS_FLAGS_ACTION_STATE_CHANGED) {
+        playerStatus->flags = playerStatus->flags & ~(
+            PLAYER_STATUS_FLAGS_ACTION_STATE_CHANGED | 
+            PLAYER_STATUS_FLAGS_800000 | 
+            PLAYER_STATUS_FLAGS_80000
+            );
+        playerStatus->unk_60 = 0;
+        phi_s3 = 1;
+        if (!(playerStatus->flags & PLAYER_STATUS_FLAGS_4000)) {
+            playerStatus->currentSpeed = playerStatus->walkSpeed;
+        }
+
+        if (playerStatus->animFlags & PLAYER_STATUS_ANIM_FLAGS_8BIT_MARIO) {
+            playerClearFlagArg = 0x90003;
+        } else {
+            if (!(playerStatus->animFlags & PLAYER_STATUS_ANIM_FLAGS_HOLDING_WATT)) {
+                playerClearFlagArg = 0x10004;
+            } else {
+                playerClearFlagArg = 0x60000;
+            }
+        }
+
+        suggest_player_anim_clearUnkFlag(playerClearFlagArg);
+    }
+
+    if ((playerStatus->flags & PLAYER_STATUS_FLAGS_4000)) {
+        playerStatus->targetYaw = playerStatus->heading;
+        try_player_footstep_sounds(8);
+        return;
+    }
+
+    player_input_to_move_vector(&playerAngle, &playerMagnitude);
+    phys_update_interact_collider();
+
+    if (!check_input_jump()) {
+        if(phi_s3 || !check_input_hammer()) {
+            player_input_to_move_vector(&playerAngle, &playerMagnitude);
+
+            if (playerMagnitude == 0.0f) {
+                set_action_state(ACTION_STATE_IDLE);
+
+                return;
+            }
+
+            if (fabsf(D_800F7B40 - playerAngle) <= 90.0f) {
+                temp_f8 = (playerMagnitude -  D_800F7B44);
+                phi_v0 = temp_f8;
+                if (temp_f8 < 0) {
+                    phi_v0 = -temp_f8;
+                }
+                if (phi_v0 < 0x14) {
+                    if ((s32) playerStatus->animFlags >= 0) {
+                        if (playerMagnitude >= 20.0f) {
+                            playerStatus->targetYaw = playerAngle;
+                        }
+                    }
+                    phi_v0_2 = playerStatus->animFlags & (0x7FFF0000 | 0xFFFF);
+                    goto block_32;
+                }
+            }
+            
+            if (playerStatus->animFlags & PLAYER_STATUS_ANIM_FLAGS_80000000) {
+                playerStatus->targetYaw = playerAngle;
+            } else {
+                temp_v1 = PLAYER_STATUS_ANIM_FLAGS_80000000;
+                phi_v0_2 = playerStatus->animFlags | PLAYER_STATUS_ANIM_FLAGS_80000000;
+block_32:
+                playerStatus->animFlags = phi_v0_2;
+            }
+
+            if (!is_ability_active(0xB)) {
+                if ((SQ(playerStatus->stickAxis[0]) + SQ(playerStatus->stickAxis[1])) >= 0xBD2) {
+                    set_action_state(ACTION_STATE_RUN);
+
+                    return;
+                }
+            }
+
+            try_player_footstep_sounds(8);
+            playerData->unk_2AC += 1;
+        }
+    }
+}
 
 // run
 void action_run_update(void) {
