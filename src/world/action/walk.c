@@ -127,7 +127,7 @@ block_32:
             }
 
             try_player_footstep_sounds(8);
-            playerData->unk_2AC += 1;
+            playerData->walkingStepsTaken += 1;
         }
     }
 }
