@@ -54,8 +54,41 @@ s32 func_802BD180_31CCF0(void) {
     }
 }
 
-void func_802BD1AC_31CD1C(s32 arg0);
-INCLUDE_ASM(s32, "world/partner/watt", func_802BD1AC_31CD1C);
+// Very Gross, Clean Up Later
+void func_802BD1AC_31CD1C(s32 arg0)
+{
+    s32 temp_a0;
+    s32 temp_v1;
+    unk_802BE310* temp_v0;
+    unk_802BE310_C* temp_a1;
+    s32 phi_v1;
+    s32 new_var;
+    f32 newVar;
+    unk_802BE310_C* phi_a1;
+    s16 newVar2 = 1;
+
+    temp_v0 = D_802BE310;
+    temp_a1 = temp_v0->unk_0C;
+    phi_a1 = temp_a1;
+    phi_a1->unk_00 = arg0;
+    temp_a0 = temp_v0->unk_08 - 1;
+    phi_v1 = 1;
+    new_var = 0x38;
+    phi_a1 = phi_a1 + 1;
+    newVar = (&D_802BE250_31DDC0)[arg0];
+    newVar = newVar * 0.5f;
+    if (temp_a0 > newVar2) {
+        do {
+        temp_v1 = phi_v1 + 1;
+        new_var = 1.0f;
+        phi_a1->unk_20 = ((-new_var) - (newVar * ((phi_v1 & 1))));
+        phi_v1 = temp_v1;
+        phi_a1 += 1;
+        } while (temp_v1 < temp_a0);
+        phi_v1 = 1;
+    }
+}
+
 
 void world_watt_init(Npc* npc) {
     npc->collisionHeight = 24;
